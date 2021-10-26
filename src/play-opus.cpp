@@ -1,14 +1,8 @@
-#include <napi.h>
+#include "deps/opus/include/opus.h"
+#include "iostream"
 
-Napi::String Method(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  return Napi::String::New(env, "world");
+int main(){
+  int error;
+  std::cout << opus_encoder_create(48000, 2, OPUS_APPLICATION_AUDIO, &error);
+  return 0;
 }
-
-Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  exports.Set(Napi::String::New(env, "hello"),
-              Napi::Function::New(env, Method));
-  return exports;
-}
-
-NODE_API_MODULE(hello, Init)
