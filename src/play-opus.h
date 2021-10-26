@@ -23,4 +23,4 @@ class OpusHandler {
         Value get_bitrate(const CallbackInfo& args);
 };
 
-void deleteOpus(OpusHandler o1);
+void deleteOpus(OpusHandler* o1);
