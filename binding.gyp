@@ -1,7 +1,7 @@
 {
     "targets": [
         {
-            "target_name": "play-opus",
+            "target_name": "addon",
             "dependencies": ["deps/binding.gyp:libopus"],
             "cflags!": ["-fno-exceptions"],
             "cflags_cc!": ["-fno-exceptions"],

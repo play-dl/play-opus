@@ -12,8 +12,16 @@ class OpusHandler {
     private :
         OpusEncoder* encoder;
         OpusDecoder* decoder;
+
+        opus_int32 rate;
+        int channels;
+        int application;
+
+        
     public :
-        friend void deleteOpus(OpusHandler* o1);
+        friend int EncoderCreate(OpusHandler* o1);
+        friend int DecoderCreate(OpusHandler* o1);
+        friend void deleteOpus(const CallbackInfo& args);
         OpusHandler(const CallbackInfo& args);
         Value encode(const CallbackInfo& args);
         Value decode(const CallbackInfo& args);
@@ -23,4 +31,6 @@ class OpusHandler {
         Value get_bitrate(const CallbackInfo& args);
 };
 
-void deleteOpus(OpusHandler* o1);
+void deleteOpus(const CallbackInfo& args);
+int EncoderCreate(OpusHandler* o1);
+int DecoderCreate(OpusHandler* o1);
