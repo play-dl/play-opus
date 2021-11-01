@@ -115,7 +115,7 @@ Napi::Value OpusHandler::decode(const CallbackInfo& args){
     Napi::Env env = args.Env();
 
     if (!args[0].IsBuffer()) {
-		TypeError::New(env, "Given argument is not a buffer. [ Opus Handler -- Encode ]").ThrowAsJavaScriptException();
+		TypeError::New(env, "Given argument is not a buffer. [ Opus Handler -- Decode ]").ThrowAsJavaScriptException();
 	}
 
     Buffer<unsigned char> buf = args[0].As<Buffer<unsigned char>>();
