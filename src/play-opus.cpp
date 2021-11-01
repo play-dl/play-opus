@@ -1,5 +1,5 @@
 #include "play-opus.h"
-#include "string"
+#include "string.h"
 
 std::string errorHandler(int error)
 {
@@ -24,23 +24,21 @@ std::string errorHandler(int error)
     };
 };
 
-void deleteOpus(const CallbackInfo& args)
-{   
-    Env env = args.Env();
-    if(args.Length() != 1){
-        Error::New(env, "encoder object is required as a argument.").ThrowAsJavaScriptException();
-    }
+OpusHandler::~OpusHandler(){
+    if(encoder) opus_encoder_destroy(encoder);
+    if(decoder) opus_decoder_destroy(decoder);
 
-    OpusHandler o1 = args[0].As<OpusHandler>();
-
-    if (o1.encoder)
-        opus_encoder_destroy(o1.encoder);
-    if (o1.decoder)
-        opus_decoder_destroy(o1.decoder);
-    delete &o1;
+    delete &rate;
+    delete &channels;
+    delete &application;
 }
 
-OpusHandler::OpusHandler(const CallbackInfo& args){
+void OpusHandler::deletehandler(const CallbackInfo& args){
+    this->~OpusHandler();
+    delete this;
+}
+
+OpusHandler::OpusHandler(const CallbackInfo& args): ObjectWrap<OpusHandler>(args) {
     this->encoder = nullptr;
     this->decoder = nullptr;
     this->rate = args[0].ToNumber().Int32Value();
@@ -48,45 +46,45 @@ OpusHandler::OpusHandler(const CallbackInfo& args){
     this->application = OPUS_APPLICATION_AUDIO;
 };
 
-Object Initiate(Env env, Object exports){
-    HandleScope::HandleScope(env);
+Object OpusHandler::Init(Napi::Env env, Object exports) {
+	HandleScope scope(env);
 
-    Function func = DefineClass(env, "OpusHandler", {
+	Function func = DefineClass(env, "OpusHandler", {
         InstanceMethod("encode", &OpusHandler::encode),
 		InstanceMethod("decode", &OpusHandler::decode),
 		InstanceMethod("encode_ctl", &OpusHandler::encode_ctl),
 		InstanceMethod("decode_ctl", &OpusHandler::decode_ctl),
 		InstanceMethod("set_bitrate", &OpusHandler::set_bitrate),
 		InstanceMethod("get_bitrate", &OpusHandler::get_bitrate),
+        InstanceMethod("delete", &OpusHandler::deletehandler),
     });
 
-    exports.Set("OpusHandler", func);
-    exports.Set("delete", Function::New(env, deleteOpus));
-    return exports;
+	exports.Set("OpusHandler", func);
+	return exports;
 }
 
-int EncoderCreate(OpusHandler* o1){
-    if(o1->encoder) return OPUS_OK;
+int OpusHandler::create_encoder(){
+    if(this->encoder) return OPUS_OK;
     else {
         int error;
-        o1->encoder = opus_encoder_create(o1->rate, o1->channels, o1->application, &error);
+        this->encoder = opus_encoder_create(rate, channels, application, &error);
         return error;
     }
 }
 
-int DecoderCreate(OpusHandler* o1){
-    if(o1->decoder) return OPUS_OK;
+int OpusHandler::create_decoder(){
+    if(this->decoder) return OPUS_OK;
     else {
         int error;
-        o1->decoder = opus_decoder_create(o1->rate, o1->channels, &error);
+        this->decoder = opus_decoder_create(rate, channels, &error);
         return error;
     }
 }
 
-Value OpusHandler::encode(const CallbackInfo& args){
-    Env env = args.Env();
+Napi::Value OpusHandler::encode(const CallbackInfo& args){
+    Napi::Env env = args.Env();
     
-    int error = EncoderCreate(this);
+    int error = create_encoder();
     if(error != OPUS_OK){
         Error::New(env, errorHandler(error) + " [ Opus Handler -- Encoder ]").ThrowAsJavaScriptException();
     }
@@ -113,8 +111,8 @@ Value OpusHandler::encode(const CallbackInfo& args){
     if(!result.IsEmpty()) return result;
 }
 
-Value OpusHandler::decode(const CallbackInfo& args){
-    Env env = args.Env();
+Napi::Value OpusHandler::decode(const CallbackInfo& args){
+    Napi::Env env = args.Env();
 
     if (!args[0].IsBuffer()) {
 		TypeError::New(env, "Given argument is not a buffer. [ Opus Handler -- Encode ]").ThrowAsJavaScriptException();
@@ -124,7 +122,7 @@ Value OpusHandler::decode(const CallbackInfo& args){
     unsigned char* opusData = buf.Data();
     size_t opusLength = buf.Length();
 
-    int error = DecoderCreate(this);
+    int error = create_decoder();;
 
     if(error != OPUS_OK){
         Error::New(env, errorHandler(error) + " [ Opus Handler -- Decoder ]").ThrowAsJavaScriptException();
@@ -145,7 +143,7 @@ Value OpusHandler::decode(const CallbackInfo& args){
 }
 
 void OpusHandler::encode_ctl(const CallbackInfo& args){
-    Env env = args.Env();
+    Napi::Env env = args.Env();
 
     if(args.Length() != 2){
         Error::New(env, "Wrong no of arguements provided.").ThrowAsJavaScriptException();
@@ -154,7 +152,7 @@ void OpusHandler::encode_ctl(const CallbackInfo& args){
     int ctl = args[0].ToNumber().Int32Value();
     int value = args[1].ToNumber().Int32Value();
 
-    int error = EncoderCreate(this);
+    int error = create_encoder();
     if(error != OPUS_OK){
         Error::New(env, errorHandler(error) + " [ Opus Handler -- Encoder ]").ThrowAsJavaScriptException();
     }
@@ -165,7 +163,7 @@ void OpusHandler::encode_ctl(const CallbackInfo& args){
 }
 
 void OpusHandler::decode_ctl(const CallbackInfo& args){
-    Env env = args.Env();
+    Napi::Env env = args.Env();
 
     if(args.Length() != 2){
         TypeError::New(env, "Wrong no of arguements provided.").ThrowAsJavaScriptException();
@@ -174,7 +172,7 @@ void OpusHandler::decode_ctl(const CallbackInfo& args){
     int ctl = args[0].ToNumber().Int32Value();
     int value = args[1].ToNumber().Int32Value();
 
-    int error = DecoderCreate(this);
+    int error = create_decoder();
 
     if(error != OPUS_OK){
         Error::New(env, errorHandler(error) + " [ Opus Handler -- Decoder ]").ThrowAsJavaScriptException();
@@ -186,7 +184,7 @@ void OpusHandler::decode_ctl(const CallbackInfo& args){
 }
 
 void OpusHandler::set_bitrate(const CallbackInfo& args){
-    Env env = args.Env();
+    Napi::Env env = args.Env();
 
     if(args.Length() != 1){
         TypeError::New(env, "Wrong no of arguements provided.").ThrowAsJavaScriptException();
@@ -194,7 +192,7 @@ void OpusHandler::set_bitrate(const CallbackInfo& args){
 
     int bitrate = args[0].ToNumber().Int32Value();
 
-    int error = EncoderCreate(this);
+    int error = create_encoder();
 
     if(error != OPUS_OK){
         Error::New(env, errorHandler(error) + " [ Opus Handler -- Encoder ]").ThrowAsJavaScriptException();
@@ -206,9 +204,9 @@ void OpusHandler::set_bitrate(const CallbackInfo& args){
 }
 
 Value OpusHandler::get_bitrate(const CallbackInfo& args){
-    Env env = args.Env();
+    Napi::Env env = args.Env();
 
-    int error = EncoderCreate(this);
+    int error = create_encoder();
 
     if(error != OPUS_OK){
         Error::New(env, errorHandler(error) + " [ Opus Handler -- Encoder ]").ThrowAsJavaScriptException();
@@ -219,4 +217,8 @@ Value OpusHandler::get_bitrate(const CallbackInfo& args){
     return Number::New(env, bitrate);
 }
 
-NODE_API_MODULE(addon, Initiate);
+Object Init(Napi::Env env, Object exports) {
+	return OpusHandler::Init(env, exports);
+}
+
+NODE_API_MODULE(opus, Init);

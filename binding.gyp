@@ -1,7 +1,7 @@
 {
     "targets": [
         {
-            "target_name": "addon",
+            "target_name": "opus",
             "dependencies": ["deps/binding.gyp:libopus"],
             "cflags!": ["-fno-exceptions"],
             "cflags_cc!": ["-fno-exceptions"],
