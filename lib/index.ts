@@ -41,10 +41,10 @@
 
 import { ProgressBar } from './progressbar'
 
-const x = new ProgressBar('This is title', [ 'Task 1', 'Task 2 is long', 'T3' ])
-x.init()
+const x = new ProgressBar('This is title', 3)
+x.init('Task 1', 12)
 setTimeout(() => {
-    x.task_running(1)
+    x.add(1)
 }, 2000)
 
 setTimeout(() => {
@@ -55,5 +55,5 @@ setTimeout(() => {
 }, 3000)
 
 setTimeout(() => {
-    x.task_complete(1)
+    x.complete()
 }, 5000)
