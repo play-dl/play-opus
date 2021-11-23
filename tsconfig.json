@@ -18,6 +18,5 @@
 		"skipLibCheck": true,
 		"resolveJsonModule": true
 	},
-	"include": ["src/index.ts"],
-	"exclude": ["play-dl/**/__tests__"]
+	"include": ["lib/index.ts"],
 }

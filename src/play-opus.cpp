@@ -34,7 +34,12 @@ OpusHandler::~OpusHandler(){
 }
 
 void OpusHandler::deletehandler(const CallbackInfo& args){
-    this->~OpusHandler();
+    if(encoder) opus_encoder_destroy(encoder);
+    if(decoder) opus_decoder_destroy(decoder);
+
+    delete &rate;
+    delete &channels;
+    delete &application;
     delete this;
 }
 
