@@ -1,73 +1,105 @@
 export class ProgressBar {
-    task_completed : number
-    running : boolean
-    tasks : number
-    current_task : string
-    timer : NodeJS.Timer | null
-    process : NodeJS.WriteStream
-    current : number;
+    cursor : Cursor;
+    completed : string[];
+    queue : string[];
+    running : string;
+    process : NodeJS.WriteStream;
     total : number;
-    constructor(title : string, num : number){
-        this.tasks = num
-        this.task_completed = 0
+    current : number;
+
+    constructor( title : string, tasks : string[], size : number ){
+        this.cursor = new Cursor(process.stdout)
+        this.completed = []
+        this.queue = tasks
+        this.running = ''
         this.process = process.stdout
-        this.process.write('\x1B[?25l')
-        this.process.write(title + '\n')
-        this.timer = null
-        this.current_task = ''
+        this.total = size
         this.current = 0
-        this.total = 0
-        this.running = false
-    }  
-
-    destroy(){
-        clearInterval(this.timer as NodeJS.Timer)
-        this.unhide()
-        this.current_task = ''
-        this.current = 0
-        this.total = 0
-        this.tasks = 0
-        this.task_completed = 0
+        this.cursor.hide()
+        this.process.write( "\r" + title + '\n' )
+        this.process.write( "\r" + this.bar + '\n' )
+        for (const task of this.queue){
+            console.log(task)
+            this.process.write( "\r" + task + " " + ".".repeat(20 - task.length) + "Queued" + '\n' )
+        }
+        this.cursor.up(this.queue.length)
     }
-    
+
+    get percentage(){
+        return parseFloat((this.current/this.total).toFixed(2))
+    }
+
+    get spaces(){
+        return " ".repeat(30 - Math.floor(this.percentage * 30))
+    }
+
+    get dots(){
+        return ".".repeat(Math.floor(this.percentage * 30))
+    }
+
+    get bar(){
+        return `[${this.dots}${this.spaces}]  ${this.percentage}%`
+    }
+
     update(){
-        if(this.running === false) return;
-        const count = Math.floor((this.current/this.total) * 30)
-        const space = " ".repeat(30 - count)
-        const dots = ".".repeat(count)
-        this.process.write(`\r` + this.current_task + `[${this.task_completed + 1}/${this.tasks}] : ` + `[${dots}${space}] ${((this.current/this.total) * 100).toFixed(1)}%`)
+        this.process.write(`\r${this.bar}`)
     }
+}
 
-    init(task : string, total : number){
-        this.timer = setInterval(() => {this.update()}, 1000)
-        this.running = true
-        this.current_task = task
-        this.total = total
-        const count = Math.floor((this.current/this.total) * 30)
-        const space = " ".repeat(30 - count)
-        const dots = ".".repeat(count)
-        this.process.write(`\r` + this.current_task + `[${this.task_completed + 1}/${this.tasks}] : ` + `[${dots}${space}] ${((this.current/this.total) * 100).toFixed(1)}%`)
-    }
 
-    complete(){
-        if(this.running === false) return;
-        this.running = false
-        this.task_completed++
-        const count = Math.floor((this.current/this.total) * 30)
-        const space = " ".repeat(30 - count)
-        const dots = ".".repeat(count)
-        this.process.write(`\r` + this.current_task + `[${this.task_completed}/${this.tasks}] : ` + `[${dots}${space}] ${((this.current/this.total) * 100).toFixed(1)}% Finished`)
-        this.destroy()
-    }
+class Cursor{
 
-    add(num? : number){
-        if(!num || num <= 0 ) num = 1
-        if((this.current + num) > this.total) this.current = this.total
-        else this.current += num
-        if(this.current === this.total) this.complete()
+    private process : NodeJS.WriteStream
+
+    constructor( process : NodeJS.WriteStream ){
+        this.process = process
     }
 
     unhide(){
         this.process.write('\x1B[?25h')
+    }
+
+    hide(){
+        this.process.write('\x1B[?25l')
+    }
+
+    cursorTo( x: number, y?: number ){
+        this.process.cursorTo(x , y)
+    }
+
+    erase(){
+        this.process.write('\x1B[K')
+    }
+
+    save(){
+        this.process.write('\x1B[s')
+    }
+
+    restore(){
+        this.process.write('\x1B[u')
+    }
+
+    clear(){
+        this.process.write('\x1B[2J')
+    }
+
+    up( num? : number ){
+        if( !num || num <= 0) num = 1;
+        this.process.write(`\x1B[${num}A`)
+    }
+
+    down( num? : number ){
+        if( !num || num <= 0) num = 1;
+        this.process.write(`\x1B[${num}B`)
+    }
+
+    forward( num? : number ){
+        if( !num || num <= 0) num = 1;
+        this.process.write(`\x1B[${num}C`)
+    }
+
+    backward( num? : number ){
+        if( !num || num <= 0) num = 1;
+        this.process.write(`\x1B[${num}D`)
     }
 }

@@ -41,19 +41,5 @@
 
 import { ProgressBar } from './progressbar'
 
-const x = new ProgressBar('This is title', 3)
-x.init('Task 1', 12)
-setTimeout(() => {
-    x.add(1)
-}, 2000)
-
-setTimeout(() => {
-    x.add(1)
-}, 2000)
-setTimeout(() => {
-    x.add(10)
-}, 3000)
-
-setTimeout(() => {
-    x.complete()
-}, 5000)
+const x = new ProgressBar('Title' , ['T 1', 'T 22222222'], 10)
+x.cursor.unhide()
