@@ -11,7 +11,12 @@ jobs:
         with:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
-          
+        
+      - name: Copy Typings of opus
+        run: |
+          mkdir play-opus
+          cp src/opus.d.ts play-opus/
+        
       - name: Install Dependencies
         run: npm install --ignore-scripts
         
@@ -37,7 +42,12 @@ jobs:
         with:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
-
+      
+      - name: Copy Typings of opus
+        run: |
+          mkdir play-opus
+          cp src/opus.d.ts play-opus/
+      
       - name: Install Dependencies
         run: npm install --ignore-scripts
 
