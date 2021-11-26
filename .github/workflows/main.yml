@@ -12,11 +12,13 @@ jobs:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
         
-      - name: TypeScript [ tsc command ]
-        run: tsc --build --verbose
+      - name: Copy Typings of opus
+        run: |
+          mkdir play-opus
+          cp src/opus.d.ts play-opus/
         
       - name: Install Dependencies
-        run: npm install
+        run: npm install --ignore-scripts
         
       - name: Publish NPM package
         run: npm publish
@@ -41,11 +43,13 @@ jobs:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
       
-      - name: TypeScript [ tsc command ]
-        run: tsc --build --verbose
+      - name: Copy Typings of opus
+        run: |
+          mkdir play-opus
+          cp src/opus.d.ts play-opus/
       
       - name: Install Dependencies
-        run: npm install
+        run: npm install --ignore-scripts
 
       - name: TypeDoc
         run: npx typedoc
