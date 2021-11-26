@@ -11,9 +11,12 @@ jobs:
         with:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
-          
+        
+      - name: TypeScript [ tsc command ]
+        run: tsc --build --verbose
+        
       - name: Install Dependencies
-        run: npm install --ignore-scripts
+        run: npm install
         
       - name: Publish NPM package
         run: npm publish
@@ -37,9 +40,12 @@ jobs:
         with:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
-
+      
+      - name: TypeScript [ tsc command ]
+        run: tsc --build --verbose
+      
       - name: Install Dependencies
-        run: npm install --ignore-scripts
+        run: npm install
 
       - name: TypeDoc
         run: npx typedoc
