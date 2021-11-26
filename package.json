@@ -1,11 +1,11 @@
 {
   "name": "play-opus",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "preinstall" : "npx node-gyp rebuild",
+    "preinstall": "npx node-gyp rebuild",
     "install": "node dist/build.js",
     "prepublishOnly": "tsc --build --clean && tsc --build --verbose"
   },
@@ -25,5 +25,9 @@
     "@types/node": "^16.11.6",
     "node-addon-api": "^4.2.0",
     "node-gyp": "^8.4.1"
+  },
+  "devDependencies": {
+    "typedoc": "^0.22.10",
+    "typedoc-plugin-missing-exports": "^0.22.6"
   }
 }
