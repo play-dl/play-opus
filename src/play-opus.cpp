@@ -34,12 +34,6 @@ OpusHandler::~OpusHandler(){
 }
 
 void OpusHandler::deletehandler(const CallbackInfo& args){
-    if(encoder) opus_encoder_destroy(encoder);
-    if(decoder) opus_decoder_destroy(decoder);
-
-    delete &rate;
-    delete &channels;
-    delete &application;
     delete this;
 }
 
@@ -52,8 +46,6 @@ OpusHandler::OpusHandler(const CallbackInfo& args): ObjectWrap<OpusHandler>(args
 };
 
 Object OpusHandler::Init(Napi::Env env, Object exports) {
-	HandleScope scope(env);
-
 	Function func = DefineClass(env, "OpusHandler", {
         InstanceMethod("encode", &OpusHandler::encode),
 		InstanceMethod("decode", &OpusHandler::decode),

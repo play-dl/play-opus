@@ -18,5 +18,5 @@
 		"skipLibCheck": true,
 		"resolveJsonModule": true
 	},
-	"include": ["lib/index.ts"],
+	"include": ["lib/*.ts"],
 }
