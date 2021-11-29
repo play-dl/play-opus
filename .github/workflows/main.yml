@@ -15,7 +15,7 @@ jobs:
       - name: Copy Typings of opus
         run: |
           mkdir play-opus
-          cp src/opus.d.ts play-opus/
+          cp lib/opus.d.ts play-opus/
         
       - name: Install Dependencies
         run: npm install --ignore-scripts
@@ -46,7 +46,7 @@ jobs:
       - name: Copy Typings of opus
         run: |
           mkdir play-opus
-          cp src/opus.d.ts play-opus/
+          cp lib/opus.d.ts play-opus/
       
       - name: Install Dependencies
         run: npm install --ignore-scripts
