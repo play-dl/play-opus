@@ -10,5 +10,5 @@ const opusFiles = fs.readdirSync('./build/Release').filter((x) => x.startsWith('
 opusFiles.forEach((file) => {
     fs.copyFileSync(`./build/Release/${file}`, `./play-opus/${file}`)
 })
-fs.copyFileSync('./src/opus.d.ts', './play-opus/opus.d.ts')
+fs.copyFileSync('./lib/opus.d.ts', './play-opus/opus.d.ts')
 fs.rmSync('./build', { recursive : true })

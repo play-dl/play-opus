@@ -1,5 +1,5 @@
 {
-    "entryPoints": ["./lib/index.ts"],
+    "entryPoints": ["./lib/opus.d.ts"],
     "plugin" : [ "typedoc-plugin-missing-exports" ],
     "out": "docs/docs"
 }
